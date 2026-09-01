@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>VMC Operator HMI</title>
+
+<style>
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	font-family: Arial, Helvetica, sans-serif;
+	background: #eef2f6;
+	color: #102a43;
+}
+
+/* =========================
+           HEADER
+        ========================= */
+.header {
+	background: #152331;
+	color: white;
+	padding: 30px 5%;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.header h1 {
+	margin: 0;
+	font-size: 52px;
+	letter-spacing: 1px;
+}
+
+.machine-name {
+	margin-top: 10px;
+	font-size: 28px;
+	color: #b9d0e8;
+}
+
+.power {
+	background: #20a653;
+	padding: 22px 45px;
+	border-radius: 10px;
+	font-size: 28px;
+	font-weight: bold;
+}
+
+/* =========================
+           STEPS
+        ========================= */
+.steps {
+	background: white;
+	padding: 35px 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 25px;
+	border-bottom: 1px solid #ccd6df;
+}
+
+.step {
+	display: flex;
+	align-items: center;
+	gap: 15px;
+	font-size: 25px;
+	font-weight: bold;
+	color: #9aaabd;
+}
+
+.step-number {
+	width: 55px;
+	height: 55px;
+	border-radius: 50%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background: #dfe5eb;
+	color: #8c9bad;
+	font-size: 24px;
+}
+
+.step.completed {
+	color: #20a653;
+}
+
+.step.completed .step-number {
+	background: #20a653;
+	color: white;
+}
+
+.step.active {
+	color: #1976bd;
+}
+
+.step.active .step-number {
+	background: #1976bd;
+	color: white;
+}
+
+.line {
+	width: 80px;
+	height: 3px;
+	background: #d4dce4;
+}
+
+/* =========================
+           MAIN
+        ========================= */
+.main {
+	width: 92%;
+	max-width: 1800px;
+	margin: 50px auto;
+}
+
+.card {
+	background: white;
+	border-radius: 20px;
+	padding: 50px;
+	margin-bottom: 35px;
+	box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+}
+
+.card h2 {
+	margin-top: 0;
+	font-size: 48px;
+}
+
+.step-label {
+	color: #1976bd;
+	font-size: 30px;
+	font-weight: bold;
+}
+
+.subtitle {
+	font-size: 25px;
+	color: #607d9b;
+}
+
+/* =========================
+           JOB INFORMATION
+        ========================= */
+.job-grid {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 30px;
+}
+
+.job-item {
+	background: #f3f6f8;
+	padding: 35px;
+	border-radius: 14px;
+	min-height: 140px;
+}
+
+.job-label {
+	font-size: 25px;
+	color: #597b9e;
+	margin-bottom: 15px;
+}
+
+.job-value {
+	font-size: 30px;
+	font-weight: bold;
+	overflow-wrap: anywhere;
+}
+
+/* =========================
+           CHECK ITEMS
+        ========================= */
+.items {
+	margin-top: 30px;
+}
+
+.item {
+	border: 3px solid #d6e0e8;
+	border-radius: 12px;
+	padding: 25px;
+	margin-bottom: 20px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 20px;
+	background: #f8fafc;
+}
+
+.item.confirmed {
+	border-color: #20a653;
+	background: #edf9f1;
+}
+
+.item-info {
+	flex: 1;
+}
+
+.item-title {
+	font-size: 27px;
+	font-weight: bold;
+}
+
+.item-details {
+	margin-top: 8px;
+	color: #607d9b;
+	font-size: 21px;
+}
+
+/* =========================
+           BUTTONS
+        ========================= */
+button {
+	border: none;
+	cursor: pointer;
+	border-radius: 10px;
+	font-size: 22px;
+	font-weight: bold;
+	padding: 18px 35px;
+}
+
+button:disabled {
+	opacity: 0.45;
+	cursor: not-allowed;
+}
+
+.confirm-btn {
+	background: #1976bd;
+	color: white;
+}
+
+.confirm-btn:hover:not(:disabled) {
+	background: #125c93;
+}
+
+.confirmed-btn {
+	background: #20a653;
+	color: white;
+}
+
+.next-btn {
+	background: #1976bd;
+	color: white;
+	margin-top: 20px;
+}
+
+/* =========================
+           READY
+        ========================= */
+.ready-box {
+	text-align: center;
+	padding: 50px;
+}
+
+.ready-status {
+	font-size: 60px;
+	font-weight: bold;
+	color: #20a653;
+	margin: 30px 0;
+}
+
+.counts {
+	font-size: 25px;
+	margin-bottom: 30px;
+}
+
+/* =========================
+           OPERATION
+        ========================= */
+.operation-box {
+	text-align: center;
+	padding: 50px;
+}
+
+.operation-status {
+	display: inline-block;
+	min-width: 350px;
+	padding: 35px;
+	border-radius: 15px;
+	font-size: 48px;
+	font-weight: bold;
+	color: white;
+	background: #20a653;
+	margin: 30px 0;
+}
+
+.operation-status.running {
+	background: #1976bd;
+}
+
+.operation-status.stopped {
+	background: #777;
+}
+
+.start-btn {
+	background: #1976bd;
+	color: white;
+	margin: 15px;
+	min-width: 350px;
+}
+
+.stop-btn {
+	background: #df2e2e;
+	color: white;
+	margin: 15px;
+	min-width: 350px;
+}
+
+/* =========================
+           ERROR
+        ========================= */
+#errorMessage {
+	display: none;
+	background: #ffe5e5;
+	color: #b00020;
+	border: 2px solid #e53935;
+	padding: 20px;
+	border-radius: 10px;
+	font-size: 20px;
+	margin-bottom: 25px;
+}
+
+/* =========================
+           LOADING
+        ========================= */
+.loading {
+	text-align: center;
+	padding: 60px;
+	font-size: 32px;
+	font-weight: bold;
+}
+
+/* =========================
+           RESPONSIVE
+        ========================= */
+@media ( max-width : 1000px) {
+	.job-grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+	.steps {
+		overflow-x: auto;
+		justify-content: flex-start;
+		padding: 25px;
+	}
+	.line {
+		width: 40px;
+	}
+	.header h1 {
+		font-size: 35px;
+	}
+}
+
+@media ( max-width : 650px) {
+	.job-grid {
+		grid-template-columns: 1fr;
+	}
+	.header {
+		flex-direction: column;
+		gap: 20px;
+		align-items: flex-start;
+	}
+	.card {
+		padding: 25px;
+	}
+	.card h2 {
+		font-size: 35px;
+	}
+	.item {
+		flex-direction: column;
+		align-items: stretch;
+	}
+	.start-btn, .stop-btn {
+		min-width: 100%;
+		margin: 10px 0;
+	}
+}
+
+.power {
+	border: none;
+	cursor: pointer;
+	color: white;
+	font-family: inherit;
+}
+
+.power:hover {
+	opacity: 0.9;
+}
+
+.power:active {
+	transform: scale(0.98);
+}
+</style>
+
+</head>
+
+<body>
+
+	<!-- =========================
+     HEADER
+========================= -->
+
+	<header class="header">
+
+		<div>
+			<h1>VMC OPERATOR HMI</h1>
+			<div class="machine-name">VMC-01</div>
+		</div>
+
+		<button id="powerOnBtn" class="power" type="button"
+			data-action="power-on">● &nbsp; POWER ON</button>
+
+	</header>
+
+
+	<!-- =========================
+     STEPS
+========================= -->
+
+	<div class="steps">
+
+		<div id="step1" class="step active">
+			<div class="step-number">1</div>
+			<span>MACHINE CHECKS</span>
+		</div>
+
+		<div class="line"></div>
+
+		<div id="step2" class="step">
+			<div class="step-number">2</div>
+			<span>TOOLS</span>
+		</div>
+
+		<div class="line"></div>
+
+		<div id="step3" class="step">
+			<div class="step-number">3</div>
+			<span>WORKPIECE</span>
+		</div>
+
+		<div class="line"></div>
+
+		<div id="step4" class="step">
+			<div class="step-number">4</div>
+			<span>READY</span>
+		</div>
+
+		<div class="line"></div>
+
+		<div id="step5" class="step">
+			<div class="step-number">5</div>
+			<span>OPERATION</span>
+		</div>
+
+	</div>
+
+
+	<main class="main">
+
+		<div id="errorMessage"></div>
+
+
+		<!-- =========================
+         JOB INFORMATION
+    ========================= -->
+
+		<section class="card">
+
+			<h2>JOB INFORMATION</h2>
+
+			<div class="job-grid">
+
+				<div class="job-item">
+					<div class="job-label">Operation</div>
+					<div id="jobOperation" class="job-value">-</div>
+				</div>
+
+				<div class="job-item">
+					<div class="job-label">Quantity</div>
+					<div id="jobQuantity" class="job-value">-</div>
+				</div>
+
+				<div class="job-item">
+					<div class="job-label">Material</div>
+					<div id="jobMaterial" class="job-value">-</div>
+				</div>
+
+				<div class="job-item">
+					<div class="job-label">Drawing Revision</div>
+					<div id="jobRevision" class="job-value">-</div>
+				</div>
+
+				<div class="job-item">
+					<div class="job-label">CNC Program</div>
+					<div id="jobProgram" class="job-value">-</div>
+				</div>
+
+				<div class="job-item">
+					<div class="job-label">Fixture</div>
+					<div id="jobFixture" class="job-value">-</div>
+				</div>
+
+				<div class="job-item">
+					<div class="job-label">Work Offset</div>
+					<div id="jobOffset" class="job-value">-</div>
+				</div>
+
+			</div>
+
+		</section>
+
+
+		<!-- =========================
+         MACHINE CHECKS
+    ========================= -->
+
+		<section id="machineSection" class="card">
+
+			<div class="step-label">STEP 1</div>
+
+			<h2>MACHINE CHECKS</h2>
+
+			<div class="subtitle">Verify each machine condition before
+				continuing.</div>
+
+			<div class="counts">
+				<strong id="machineCount">0 / 0</strong>
+			</div>
+
+			<div id="machineChecksContainer" class="items">
+
+				<div class="loading">Loading machine checks...</div>
+
+			</div>
+
+		</section>
+
+
+		<!-- =========================
+         TOOLS
+    ========================= -->
+
+		<section id="toolsSection" class="card">
+
+			<div class="step-label">STEP 2</div>
+
+			<h2>TOOLS</h2>
+
+			<div class="subtitle">Verify each required tool.</div>
+
+			<div class="counts">
+				<strong id="toolCount">0 / 0</strong>
+			</div>
+
+			<div id="toolsContainer" class="items">
+
+				<div class="loading">Loading tools...</div>
+
+			</div>
+
+		</section>
+
+
+		<!-- =========================
+         WORKPIECE
+    ========================= -->
+
+		<section id="workpieceSection" class="card">
+
+			<div class="step-label">STEP 3</div>
+
+			<h2>WORKPIECE SETUP</h2>
+
+			<div class="subtitle">Complete every workpiece setup
+				instruction.</div>
+
+			<div class="counts">
+				<strong id="workpieceCount">0 / 0</strong>
+			</div>
+
+			<div id="workpieceContainer" class="items">
+
+				<div class="loading">Loading workpiece steps...</div>
+
+			</div>
+
+		</section>
+
+
+		<!-- =========================
+         READY
+    ========================= -->
+
+		<section id="readySection" class="card">
+
+			<div class="ready-box">
+
+				<div class="step-label">STEP 4</div>
+
+				<h2>READY</h2>
+
+				<div class="counts">
+
+					Machine: <strong id="readyMachineCount">0/0</strong> &nbsp;&nbsp;
+
+					Tools: <strong id="readyToolCount">0/0</strong> &nbsp;&nbsp;
+
+					Workpiece: <strong id="readyWorkpieceCount">0/0</strong>
+
+				</div>
+
+				<div id="readyStatus" class="ready-status">CHECKING...</div>
+
+				<div id="readyMessage" class="subtitle">Checking machine
+					readiness...</div>
+
+			</div>
+
+		</section>
+
+
+		<!-- =========================
+         OPERATION
+    ========================= -->
+
+		<section id="operationSection" class="card">
+
+			<div class="operation-box">
+
+				<div class="step-label">STEP 5</div>
+
+				<h2>OPERATION</h2>
+
+				<div id="operationStatus" class="operation-status">READY</div>
+
+				<div class="subtitle">Machine operation status</div>
+
+				<div>
+
+					<button id="startOperationBtn" data-action="start-operation">
+						START OPERATION</button>
+
+					<button id="stopOperationBtn" data-action="stop-operation">
+						STOP OPERATION</button>
+
+				</div>
+
+			</div>
+
+		</section>
+
+	</main>
+
+
+	<script src="/app.js"></script>
+
+</body>
+
+</html>
